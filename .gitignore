@@ -1,0 +1,8 @@
+out/
+__pycache__/
+.venv/
+projects/*/exports/
+projects/*/.check/
+projects/test/
+projects/test2/
+models/
