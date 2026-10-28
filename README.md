@@ -34,6 +34,9 @@ in `models/`.
 frames, and you tweak the result in the editor. Then "export it" makes the MP4. A build script
 costs about a third of the tokens of hand-written animation code.
 
+Claude finds its way around from `CLAUDE.md` (repo map, project format) and
+`share/skill/SKILL.md` (how to write a video). Start Claude Code in this folder.
+
 ## Commands
 
 | Command | Does |

@@ -6,6 +6,28 @@ Animation videos the user previews, tweaks, and exports.
   Claude writes a project as JSON, the user adjusts it by hand (timeline, canvas, inspector), and
   it exports MP4/WebM/GIF in 16:9 and 9:16. New videos go here.
 
+## Start here (Claude)
+
+This is a cross-platform copy of motion-lab, usually on Windows. To make or change a video,
+read `share/skill/SKILL.md` (setup also installs it as the `motion` skill in
+`~/.claude/skills/motion`); it has the whole build-script API (`MOTION_LAB_DIR` there means this folder). This file covers
+the rest.
+
+| Path | What |
+|---|---|
+| `projects/NAME/build.py` | a video, as a short Python script you write (examples: `quicksort`, `binary-search`) |
+| `projects/NAME/project.json` | what build.py outputs and the editor edits; `assets/` audio/images, `exports/` renders |
+| `motionlab/build.py` | the API build scripts import (`Scene`, kits like `array`, `code`) |
+| `motionlab/` | the rest of the Python side: server, CLI, export, Kokoro TTS, lint |
+| `editor/src/` | the browser editor (Preact + TypeScript); `editor/dist/` is the prebuilt copy it serves |
+| `models/` | Kokoro voice files, downloaded by setup (gitignored) |
+| `setup.cmd`, `share/setup.ps1` | Windows install; `Open Motion Lab.cmd` starts the editor |
+
+On Windows: the `motion` command is in `%USERPROFILE%\.local\bin`. Use it from Claude Code's
+shell as-is (`motion build NAME --check`). If it is missing, the user hasn't run `setup.cmd`.
+Never start the editor (`motion` or `motion NAME`) yourself: it opens their browser. Building
+`editor/` needs Node; without it, the shipped `editor/dist` is used.
+
 ## How Claude makes a video
 
 Write `projects/NAME/build.py` with `motionlab/build.py` (the `motion` skill in
@@ -25,7 +47,7 @@ late tweens, and narration problems.
 - Installed as a uv tool in editable mode (`uv tool install -e .`). Python deps are in `pyproject.toml`.
 - Frontend dev: run `motion --no-open`, then `npm run dev` in `editor/` (Vite proxies `/api` and
   `/projects` to :3790). `npm run check` typechecks.
-- Testing: render pages headless with Playwright + system chromium (`render.html?project=X&aspect=wide`
+- Testing: render pages headless with Playwright (its own Chromium, or system chromium if on PATH) (`render.html?project=X&aspect=wide`
   exposes `window.__motion.seek(t)`), never open a visible window. Kill test servers after.
 
 ## Layout
@@ -41,7 +63,7 @@ late tweens, and narration problems.
 - `motionlab/export.py`: headless chromium seeks `render.html` frame by frame, CDP fast PNG
   screenshots into ffmpeg. 1105 frames at 1080p takes ~100 s. `media.mix()` mixes the audio
   tracks with the same linear gains/fades the editor plays.
-- `motionlab/tts.py`: Kokoro from `models/` in the repo, else `~/Projects/Side/jarvis/models` (override `KOKORO_MODELS`),
+- `motionlab/tts.py`: Kokoro from `models/` in the repo (override `KOKORO_MODELS`),
   loads per call and exits.
 - `editor/src/player.ts`: the renderer shared by editor and export. **No live GSAP timeline**:
   every frame is computed from the tween list (GSAP only supplies eases and color mixing),
